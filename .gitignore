@@ -1,0 +1,4 @@
+/ExpenseTracker/bin/
+/ExpenseTracker/obj/
+/.idea
+appsettings.Development.json
