@@ -8,12 +8,13 @@ public class User
     public string PasswordHash { get; private set; }
     public decimal Balance { get; private set; }
     public DateTime CreatedOn { get; private set; }
-    public List<Transaction> Transactions { get; private set; }
+    public List<Transaction>? Transactions { get; private set; }
 
     public User(string email, string username, string passwordHash)
     {
         Email = email;
         Username = username;
         PasswordHash = passwordHash;
+        CreatedOn = DateTime.UtcNow;
     }
 }
