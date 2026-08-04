@@ -1,4 +1,8 @@
 using ExpenseTracker.Data;
+using ExpenseTracker.Services;
+using ExpenseTracker.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,12 +18,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>()
+    .AddValidatorsFromAssemblyContaining<LoginRequestValidator>()
+    .AddValidatorsFromAssemblyContaining<CreateCategoryValidator>()
+    .AddValidatorsFromAssemblyContaining<UpdateCategoryValidator>()
+    .AddValidatorsFromAssemblyContaining<CreateTransactionValidator>()
+    .AddValidatorsFromAssemblyContaining<UpdateTransactionValidator>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.MapControllers();
 }
 
 app.UseHttpsRedirection();
