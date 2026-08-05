@@ -5,8 +5,8 @@ namespace ExpenseTracker.Services;
 
 public interface ICategoryService
 {
-    List<CategoryResponseDto> GetAllCategories();
-    ServiceResult<CategoryResponseDto> CreateCategory(CreateCategoryRequestDto request);
-    ServiceResult <CategoryResponseDto> UpdateCategory(int categoryId, UpdateCategoryRequestDto request);
-    ServiceResult<bool> DeleteCategory(int id);
+    List<CategoryResponseDto> GetAllCategories(int userId);
+    CategoryResponseDto CreateCategory(int userId, CreateCategoryRequestDto request);
+    CategoryResponseDto UpdateCategory(int userId, int categoryId, UpdateCategoryRequestDto request);
+    void DeleteCategory(int userId, int id);
 }

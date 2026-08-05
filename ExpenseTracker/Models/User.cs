@@ -6,9 +6,9 @@ public class User
     public string Email { get; set; }
     public string Username { get; set; }
     public string PasswordHash { get; private set; }
-    public decimal Balance { get; private set; }
+    public decimal Balance { get; set; }
     public DateTime CreatedOn { get; private set; }
-    public List<Transaction>? Transactions { get; private set; }
+    public List<Transaction>? Transactions { get; private set; } = new();
 
     public User(string email, string username, string passwordHash)
     {

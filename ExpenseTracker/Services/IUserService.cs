@@ -5,7 +5,7 @@ namespace ExpenseTracker.Services;
 
 public interface IUserService
 {
-    ServiceResult<UserResponseDto> Login(LoginRequestDto request);
-    ServiceResult<UserResponseDto> Register(RegisterRequestDto request);
-    ServiceResult<bool> Logout();
+    AuthResponseDto Login(LoginRequestDto request);
+    AuthResponseDto Register(RegisterRequestDto request);
+    void Logout();
 }

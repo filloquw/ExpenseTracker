@@ -9,7 +9,6 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
     {
         RuleFor(x => x.Username)
             .NotEmpty().WithMessage("Имя пользователя обязательно")
-            .MinimumLength(3).WithMessage("Имя пользователя не должно быть короче 3 символов")
             .MaximumLength(50).WithMessage("Имя пользователя не должно превышать 50 символов");
         
         RuleFor(x => x.Email)

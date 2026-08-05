@@ -10,4 +10,5 @@ public class UpdateTransactionRequestDto
     public DateTime? Date { get; set; }
     public TransactionType? Type { get; set; }
     public int? CategoryId { get; set; }
+    public bool RemoveCategory { get; set; }
 }

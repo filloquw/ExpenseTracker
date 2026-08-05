@@ -5,9 +5,13 @@ namespace ExpenseTracker.Services;
 
 public interface ITransactionService
 {
-    List<TransactionResponseDto> GetAllTransactions();
-    ServiceResult<TransactionResponseDto> CreateTransaction(CreateTransactionRequestDto request);
-    ServiceResult<TransactionResponseDto> UpdateTransaction(int transactionId, UpdateTransactionRequestDto request);
-    ServiceResult<List<TransactionResponseDto>> GetTransactionsByCategory(int categoryId);
-    ServiceResult<bool> DeleteTransaction(int id);
+    List<TransactionResponseDto> GetAllTransactions(int userId);
+    TransactionResponseDto CreateTransaction(int userId, CreateTransactionRequestDto request);
+    TransactionResponseDto UpdateTransaction(int userId, int transactionId, UpdateTransactionRequestDto request);
+    void UpdateBalance(User user, TransactionType type, decimal amount);
+    void ReverseBalance(User user, TransactionType type, decimal amount);
+    
+    void UpdateTransactionBalance(User user, TransactionType oldType, decimal oldAmount, Transaction updatedTransaction);
+    List<TransactionResponseDto> GetTransactionsByCategory(int userId, int categoryId);
+    void DeleteTransaction(int userId, int id);
 }

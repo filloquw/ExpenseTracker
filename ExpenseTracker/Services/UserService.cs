@@ -1,5 +1,6 @@
 using ExpenseTracker.Data;
 using ExpenseTracker.DTO;
+using ExpenseTracker.Exceptions;
 using ExpenseTracker.Models;
 
 namespace ExpenseTracker.Services;
@@ -7,59 +8,41 @@ namespace ExpenseTracker.Services;
 public class UserService : IUserService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IJwtService _jwtService;
 
-    public UserService(ApplicationDbContext context)
+    public UserService(ApplicationDbContext context,  IJwtService jwtService)
     {
         _context = context;
+        _jwtService = jwtService;
     }
     
-    public ServiceResult<UserResponseDto> Login(LoginRequestDto request)
+    public AuthResponseDto Login(LoginRequestDto request)
     {
-        var user = _context.Users.SingleOrDefault(u => u.Email == request.Email);
+        var user = _context.Users.SingleOrDefault(u => u.Email == request.Email.ToLower());
 
         if (user == null)
-        {
-            return new ServiceResult<UserResponseDto>
-            {
-                Success = false,
-                Message = "Пользователя с таким email не существует."
-            };
-        }
+            throw new BusinessException("Пользователь не найден");
         
         var passwordCorrect = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
 
         if (!passwordCorrect)
-        {
-            return new ServiceResult<UserResponseDto>
-            {
-                Success = false,
-                Message = "Неверный пароль."
-            };
-        }
+            throw new BusinessException("Пароль неверный");
 
-        return new ServiceResult<UserResponseDto>
+        var token = _jwtService.CreateToken(user);
+
+        return new AuthResponseDto
         {
-            Success = true,
-            Data = new UserResponseDto
-            {
-                Email = user.Email,
-                Username = user.Username,
-                Balance = user.Balance
-            }
+            Token = token,
+            Username = user.Username,
+            Email = user.Email
         };
     }
 
-    public ServiceResult<UserResponseDto> Register(RegisterRequestDto request)
+    public AuthResponseDto Register(RegisterRequestDto request)
     {
-        var exists = _context.Users.Any(u => u.Email == request.Email);
+        var exists = _context.Users.Any(u => u.Email == request.Email.ToLower());
         if (exists)
-        {
-            return new ServiceResult<UserResponseDto>
-            {
-                Success = false,
-                Message = $"Уже существует пользователь, зарегистрированный под email: {request.Email}"
-            };
-        }
+            throw new BusinessException($"Уже существует пользователь, зарегистрированный под email: {request.Email}");
         
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -70,20 +53,18 @@ public class UserService : IUserService
         
         _context.Users.Add(user);
         _context.SaveChanges();
+        
+        var token = _jwtService.CreateToken(user);
 
-        return new ServiceResult<UserResponseDto>
+        return new AuthResponseDto
         {
-            Success = true,
-            Data = new UserResponseDto
-            {
-                Email = user.Email,
-                Username = user.Username,
-                Balance = null
-            }
+            Email = user.Email,
+            Username = user.Username,
+            Token = token
         };
     }
 
-    public ServiceResult<bool> Logout()
+    public void Logout()
     {
         throw new NotImplementedException();
     }
