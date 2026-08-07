@@ -1,8 +1,9 @@
+using ExpenseTracker.DTO;
 using ExpenseTracker.Models;
 
 namespace ExpenseTracker.Services;
 
 public interface IJwtService
 {
-    string CreateToken(User user);
+    JwtTokenResponse CreateToken(User user);
 }

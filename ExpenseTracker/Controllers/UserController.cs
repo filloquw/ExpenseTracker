@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using ExpenseTracker.DTO;
 using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -35,5 +37,17 @@ public class UserController : ControllerBase
     {
         var result = _userService.Login(login);
         return Ok(result);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public IActionResult Logout()
+    {
+        var jti = User.FindFirstValue(JwtRegisteredClaimNames.Jti);
+        _userService.Logout(jti);
+        return Ok();
     }
 }

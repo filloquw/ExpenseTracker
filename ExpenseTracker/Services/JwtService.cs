@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ExpenseTracker.DTO;
 using ExpenseTracker.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,8 +15,9 @@ public class JwtService : IJwtService
     {
         _configuration = configuration;
     }
-    public string CreateToken(User user)
+    public JwtTokenResponse CreateToken(User user)
     {
+        var jti = Guid.NewGuid().ToString();
         var claims = new[]
         {
             new Claim(
@@ -24,6 +26,8 @@ public class JwtService : IJwtService
             new Claim(
                 ClaimTypes.Email,
                 user.Email),
+            new Claim(
+                JwtRegisteredClaimNames.Jti, jti)
         };
         
         var jwtKey = _configuration["Jwt:Key"] ?? throw new Exception("JWT Key not found");
@@ -32,14 +36,20 @@ public class JwtService : IJwtService
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         
         var expiresMinutes = _configuration["Jwt:ExpiryMinutes"] ?? throw new Exception("JWT ExpireMinutes not found");
+        var expireAt = DateTime.UtcNow.AddMinutes(int.Parse(expiresMinutes));
         
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(int.Parse(expiresMinutes)),
+            expires: expireAt,
             signingCredentials: creds);
-        
-        return new JwtSecurityTokenHandler().WriteToken(token);
+
+        return new JwtTokenResponse
+        {
+            Token = new JwtSecurityTokenHandler().WriteToken(token),
+            Jti = jti,
+            ExpiresAt = expireAt
+        };
     }
 }

@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using ExpenseTracker.Data;
 using ExpenseTracker.Exceptions;
@@ -73,6 +74,26 @@ public static partial class Program
         
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Jwt токен не найден")))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+
+                        var dbContext = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+                        var userToken = await dbContext.UserTokens.FirstOrDefaultAsync(t => t.Jti == jti);
+
+                        if (userToken == null)
+                            context.Fail("Token not found");
+                        
+                        if (userToken!.IsRevoked)
+                            context.Fail("Token revoked");
+                        
+                        if (userToken.ExpiresAt < DateTime.UtcNow)
+                            context.Fail("Token expired");
+                    }
                 };
             });
         

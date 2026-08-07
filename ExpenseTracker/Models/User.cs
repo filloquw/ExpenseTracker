@@ -9,6 +9,7 @@ public class User
     public decimal Balance { get; set; }
     public DateTime CreatedOn { get; private set; }
     public List<Transaction>? Transactions { get; private set; } = new();
+    public List<UserToken> Tokens { get; private set; } = new();
 
     public User(string email, string username, string passwordHash)
     {

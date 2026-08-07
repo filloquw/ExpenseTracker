@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ExpenseTracker.DTO;
 using ExpenseTracker.Models;
 
@@ -7,5 +8,5 @@ public interface IUserService
 {
     AuthResponseDto Login(LoginRequestDto request);
     AuthResponseDto Register(RegisterRequestDto request);
-    void Logout();
+    void Logout(string? jti);
 }
